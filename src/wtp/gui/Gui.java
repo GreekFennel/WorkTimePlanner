@@ -3,6 +3,8 @@ package wtp.gui;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Application;
@@ -13,13 +15,8 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -31,6 +28,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import wtp.io.PDFWriter;
 import wtp.io.ProjectReader;
 import wtp.model.Activity;
 import wtp.model.Project;
@@ -142,7 +140,7 @@ public class Gui extends Application {
 			
 		});
 		
-		Button export = new Button("Export Project to Text");
+		Button export = new Button("Save Project to Text");
 		
 		export.setOnAction(new EventHandler<ActionEvent>(){
 
@@ -165,10 +163,27 @@ public class Gui extends Application {
 			}
 			
 		});
-		
+
+		Button pdf = new Button("Export to PDF File");
+		pdf.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event){
+				FileChooser fc = new FileChooser();
+				fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF File","*.pdf"));
+				try {
+					PDFWriter.write(p, fc.showSaveDialog(primaryStage));
+				} catch (IOException e) {
+					Alert alert = new Alert(AlertType.ERROR);
+					alert.setTitle("Error");
+					alert.setHeaderText("Error writing to PDF File");
+					alert.showAndWait();
+				}
+			}
+		});
+
 		Button add = new Button("Add Activity");
 
-		top.getChildren().addAll(load, export, add);
+		top.getChildren().addAll(load, export, pdf, add);
 		bp.setTop(top);
 
 		center = new VBox();
@@ -216,12 +231,17 @@ public class Gui extends Application {
 		HBox.setHgrow(durationField, Priority.ALWAYS);
 		durationBox.getChildren().addAll(durationLabel, durationField);
 
+		HBox dateBox = new HBox();
+		Label dateLabel = new Label("Date");
+		DatePicker datePicker = new DatePicker(LocalDate.now());
+		dateBox.getChildren().addAll(dateLabel, datePicker);
+
 		HBox buttonBox = new HBox();
 		Button save = new Button("Save");
 		Button cancel = new Button("Cancel");
 		buttonBox.getChildren().addAll(save, cancel);
 
-		vb.getChildren().addAll(label, descriptionBox, durationBox, buttonBox);
+		vb.getChildren().addAll(label, descriptionBox, dateBox, durationBox, buttonBox);
 
 		Popup popup = new Popup();
 		popup.getContent().add(vb);
@@ -230,7 +250,7 @@ public class Gui extends Application {
 			@Override
 			public void handle(ActionEvent arg0) {
 				try {
-					Activity a = new Activity(descriptionField.getText(), Long.parseLong(durationField.getText()));
+					Activity a = new Activity(descriptionField.getText(), Long.parseLong(durationField.getText()),datePicker.getValue());
 					p.addActivity(a);
 					repaintActivities();
 					popup.hide();
@@ -266,20 +286,22 @@ public class Gui extends Application {
 		activityView.setPadding(new Insets(10));
 		activityView.setBackground(new Background(new BackgroundFill(Color.ANTIQUEWHITE,null,null)));
 		HBox tBox = new HBox();
+		Label date = new Label ("Date");
 		Label des = new Label("Description");
 		Label dur = new Label("Duration(Min)");
 		Separator line = new Separator(Orientation.HORIZONTAL);
-		tBox.getChildren().addAll(des,dur,line);
+		tBox.getChildren().addAll(date,des,dur);
 		activityView.getChildren().addAll(tBox, line);
 		if (p != null) {
-			List<Activity> al = p.getActivities();
+			List<Activity> al = new ArrayList<>(p.getActivities());
+			al.sort((o1, o2) -> o1.getDate().compareTo(o2.getDate()));
 			for (Activity a : al) {
-				String[] text = a.toString().split(":");
 				HBox textBox = new HBox();
-				Label name = new Label(text[0]);
-				Label minutes = new Label(text[1]);
+				Label day = new Label(a.getDate().toString());
+				Label name = new Label(a.getDescription());
+				Label minutes = new Label(a.getDurationInMinutes()+"");
 				textBox.setSpacing(20);
-				textBox.getChildren().addAll(name,minutes);
+				textBox.getChildren().addAll(day,name,minutes);
 				activityView.getChildren().addAll(textBox);
 			}
 		}

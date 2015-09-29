@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,10 +40,10 @@ public class ProjectReader {
 					break;
 				case 2:
 					try {
-						String de = s.split(":")[0];
-						long d = Long.parseLong(s.split(":")[1]);
-						al.add(new Activity(de,d));
-						state++;
+						LocalDate date = LocalDate.parse(s.split(":")[0]);
+						String de = s.split(":")[1];
+						long d = Long.parseLong(s.split(":")[2]);
+						al.add(new Activity(de,d,date));
 					} catch (Exception e) {
 						e.printStackTrace();
 						state = 3;
