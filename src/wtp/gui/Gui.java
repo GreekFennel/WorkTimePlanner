@@ -3,6 +3,7 @@ package wtp.gui;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.Duration;
 import java.util.List;
 
 import javafx.application.Application;
@@ -33,6 +34,7 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import wtp.io.ProjectReader;
 import wtp.model.Activity;
+import wtp.model.DurationActivity;
 import wtp.model.Project;
 
 public class Gui extends Application {
@@ -42,6 +44,7 @@ public class Gui extends Application {
 
 	private Stage primaryStage;
 
+	
 	private Scene introScene;
 	private Scene mainScene;
 	private ProgressBar bar;
@@ -230,7 +233,7 @@ public class Gui extends Application {
 			@Override
 			public void handle(ActionEvent arg0) {
 				try {
-					Activity a = new Activity(descriptionField.getText(), Long.parseLong(durationField.getText()));
+					Activity a = new DurationActivity(descriptionField.getText(), Duration.ofMinutes(Long.parseLong(durationField.getText())));
 					p.addActivity(a);
 					repaintActivities();
 					popup.hide();

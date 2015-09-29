@@ -1,30 +1,19 @@
 package wtp.model;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.StringProperty;
 
-public class Activity {
+public interface Activity {
 	
-	private String description;
-	private ObjectProperty<Duration> duration;
-	
-	public Activity(String description, long minutes){
-		this.description = description;
-		duration = new SimpleObjectProperty<Duration>(this,"duration");
-		duration.set(Duration.ofMinutes(minutes));
-	}
-	
-	public long getDurationInMinutes(){
-		return duration.get().toMinutes();
-	}
-	
-	public ObjectProperty<Duration> durationProperty(){
-		return duration;
-	}
-	
-	public String toString(){
-		return this.description+":"+duration.get().toMinutes();
-	}
+	/**
+	 * 
+	 * @return duration of Activity in Minute
+	 */
+	public StringProperty getDescription();
+	public ObjectProperty<Duration> getDuration();
+	public ObjectProperty<LocalDateTime> getStart();
+	public ObjectProperty<LocalDateTime> getEnd();
 }
