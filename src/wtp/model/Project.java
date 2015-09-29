@@ -29,6 +29,7 @@ public class Project {
 	public List<Activity> getActivities(){
 		return Collections.unmodifiableList(activities);
 	}
+
 	
 	public void addActivity(Activity a){
 		double d = percentageDone.get() * required.get().toMinutes()+a.getDurationInMinutes();
