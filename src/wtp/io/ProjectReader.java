@@ -44,7 +44,6 @@ public class ProjectReader {
 						String de = s.split(":")[1];
 						long d = Long.parseLong(s.split(":")[2]);
 						al.add(new Activity(de,d,date));
-						state++;
 					} catch (Exception e) {
 						e.printStackTrace();
 						state = 3;
