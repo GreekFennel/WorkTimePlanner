@@ -33,4 +33,8 @@ public class Activity{
     public LocalDate getDate(){
         return this.date;
     }
+
+    public String getDescription(){
+        return description;
+    }
 }

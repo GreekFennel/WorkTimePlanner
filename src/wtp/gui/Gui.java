@@ -28,6 +28,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import wtp.io.PDFWriter;
 import wtp.io.ProjectReader;
 import wtp.model.Activity;
 import wtp.model.Project;
@@ -139,7 +140,7 @@ public class Gui extends Application {
 			
 		});
 		
-		Button export = new Button("Export Project to Text");
+		Button export = new Button("Save Project to Text");
 		
 		export.setOnAction(new EventHandler<ActionEvent>(){
 
@@ -162,10 +163,27 @@ public class Gui extends Application {
 			}
 			
 		});
-		
+
+		Button pdf = new Button("Export to PDF File");
+		pdf.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event){
+				FileChooser fc = new FileChooser();
+				fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF File","*.pdf"));
+				try {
+					PDFWriter.write(p, fc.showSaveDialog(primaryStage));
+				} catch (IOException e) {
+					Alert alert = new Alert(AlertType.ERROR);
+					alert.setTitle("Error");
+					alert.setHeaderText("Error writing to PDF File");
+					alert.showAndWait();
+				}
+			}
+		});
+
 		Button add = new Button("Add Activity");
 
-		top.getChildren().addAll(load, export, add);
+		top.getChildren().addAll(load, export, pdf, add);
 		bp.setTop(top);
 
 		center = new VBox();
@@ -278,11 +296,10 @@ public class Gui extends Application {
 			List<Activity> al = new ArrayList<>(p.getActivities());
 			al.sort((o1, o2) -> o1.getDate().compareTo(o2.getDate()));
 			for (Activity a : al) {
-				String[] text = a.toString().split(":");
 				HBox textBox = new HBox();
-				Label day = new Label(text[0]);
-				Label name = new Label(text[1]);
-				Label minutes = new Label(text[2]);
+				Label day = new Label(a.getDate().toString());
+				Label name = new Label(a.getDescription());
+				Label minutes = new Label(a.getDurationInMinutes()+"");
 				textBox.setSpacing(20);
 				textBox.getChildren().addAll(day,name,minutes);
 				activityView.getChildren().addAll(textBox);
